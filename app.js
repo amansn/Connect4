@@ -21,13 +21,14 @@ var player2 = {
 };
 //Who's turn is it?
 var turn;
+var selectedTile;
 
 //onload functions
 //Ask player's names
 
 window.onload = function() {
   askNames();
-  turn = player1.name;
+  turn = player1;
 };
 
 //Is the game currently being played?
@@ -39,7 +40,6 @@ var move;
 
 //Starts game
 var start = function() {
-  console.log("Running start");
   gameRunning = true;
   playGame();
 };
@@ -57,19 +57,27 @@ var askNames = function() {
 
 //Function for gameplay
 var playGame = function() {
-  console.log("Running playGame");
   while (gameRunning) {
-    console.log("Running while loop");
-    console.log("turn", turn);
-    if (turn === player1.name) {
+    if (turn === player1) {
+      console.log(grid);
       console.log("running p1 turn");
       askMove();
       makeAMove(player1);
-    } else if (turn === player2.name) {
-      console.log("running p2 turn");
+      if (checkIfWinner(player1)) {
+        console.log("Player 1 won!");
+        player1.numWins++;
+        gameRunning = false;
+      };
+    } else if (turn === player2) {
+      console.log(grid);
+      console.log("running p1 turn");
       askMove();
       makeAMove(player2);
-      gameRunning = false;
+      if (checkIfWinner(player2)) {
+        console.log("Player 2 won!");
+        player2.numWins++;
+        gameRunning = false;
+      };
     }
   };
 };
@@ -77,7 +85,7 @@ var playGame = function() {
 //Ask player for move
 var askMove = function() {
   //Figure out event listeners and return player's 'move'
-  return move = grid[2];
+  move = parseInt(prompt("Pick a column"));
 };
 
 //Make a move
@@ -88,18 +96,94 @@ var makeAMove = function(currentPlayer) {
 
 //Check where piece will land in column
 var placementChecker = function(move, currentPlayer) {
-  for (i = move.length - 1; i >= 0; i--) {
-    if (move[i] === "X") {
-      turn = player2.name;
-      return move[i] = currentPlayer.playerMark;
+  for (i = grid[move].length - 1; i >= 0; i--) {
+    if (grid[move][i] === "X") {
+      selectedTile = i;
+      if (turn === player1) {
+      turn = player2;
+    } else {
+      turn = player1;
+    }
+      return grid[move][i] = currentPlayer.playerMark;
     }
   }
-      console.log("Can't move here! Column's full!");
-      askMove();
-      makeAMove(move, currentPlayer);
+  console.log("Can't move here! Column's full!");
 };
 
 //Check if anyone won
-var checkIfWinner = function() {
+var checkIfWinner = function(currentPlayer) {
+//Run column check
+if (colCheck(selectedTile)) {
+  return true;
+};
+//Run row check
+if (rowCheck(selectedTile)) {
+  return true;
+};
+//Run diagonal check
+if (diagCheck(selectedTile, turn.playerMark)) {
+  return true;
+};
+};
 
+//Function for column check
+var colCheck = function(selectedTile) {
+  console.log("Move is:", move);
+  console.log("This is colCheck running and logging selectedTile:", selectedTile);
+  for (i = -3; i <= 0; i++) {
+  //Check if selectedTile is position 1
+    if (grid[move][selectedTile] !== undefined &&
+        grid[move][selectedTile + i] === grid[move][selectedTile + (i + 1)] &&
+        grid[move][selectedTile + (i + 1)] === grid[move][selectedTile + (i + 2)] &&
+        grid[move][selectedTile + (i + 2)] === grid[move][selectedTile + (i + 3)]) {
+          console.log("Option", (i + 4));
+          return true;
+    }
+  }
+  return false;
+};
+
+//Function for row check
+var rowCheck = function(selectedTile) {
+  for (i = -3; i <= 0; i++) {
+  console.log("move is", move);
+  console.log("i is", i);
+    if (((move + i) >= 0) && (move + (i + 3) <= 6)) {
+      console.log("since " + move + " - " + i + " is > 0, running it");
+      if (grid[move][selectedTile] !== undefined &&
+          grid[move + i][selectedTile] === grid[move + (i + 1)][selectedTile] &&
+          grid[move + (i + 1)][selectedTile] === grid[move + (i + 2)][selectedTile] &&
+          grid[move + (i + 2)][selectedTile] === grid[move + (i + 3)][selectedTile]) {
+            console.log("Option", (i + 4));
+            return true;
+      }
+    }
+  }
+  return false;
+};
+
+//Function for diagonal check
+var diagCheck = function(selectedTile, currentPlayerX) {
+  for (i = -3; i <= 0; i++) {
+  console.log("move is", move);
+  console.log("i is", i);
+    if (((move + i) >= 0) && (move + (i + 3) <= 6)) {
+      console.log("since " + move + " - " + i + " is >= 0, running it");
+      if (grid[move][selectedTile] !== undefined &&
+          grid[move + i][selectedTile + i] === currentPlayerX &&
+          grid[move + (i + 1)][selectedTile + (i + 1)] === currentPlayerX &&
+          grid[move + (i + 2)][selectedTile + (i + 2)] === currentPlayerX &&
+          grid[move + (i + 3)][selectedTile + (i + 3)] === currentPlayerX) {
+            console.log("Option", (i + 4));
+            return true;
+      } else if (grid[move][selectedTile] !== undefined &&
+          grid[move + i][selectedTile + i] === currentPlayerX &&
+          grid[move + (i + 1)][selectedTile + (i - 1)] === currentPlayerX &&
+          grid[move + (i + 2)][selectedTile + (i - 2)] === currentPlayerX &&
+          grid[move + (i + 3)][selectedTile + (i - 3)] === currentPlayerX) {
+            return true;
+      }
+    }
+  }
+  return false;
 };
