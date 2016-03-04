@@ -27,9 +27,6 @@ var columnArray5 = document.querySelectorAll(".game_column_5");
 var columnArray6 = document.querySelectorAll(".game_column_6");
 var columnArray7 = document.querySelectorAll(".game_column_7");
 
-//Create an array with all of the columns
-var columnArrayMain = [columnArray1, columnArray2, columnArray3, columnArray4, columnArray5, columnArray6, columnArray7];
-
 //Create players
 var player1 = {
   name: "Player 1",
@@ -45,15 +42,11 @@ var player2 = {
 };
 //Who's turn is it?
 var turn;
-
-//The actual tile that is selected
 var selectedTile;
-
-//Is there a winner for the current game?
-var isThereAWinner = false;
 
 //onload functions
 //Ask player's names
+
 window.onload = function() {
   turn = player1;
 };
@@ -84,60 +77,52 @@ var askNames = function() {
 
 //Function for gameplay
 var playGame = function() {
-  buildEventListeners(turn);
+  while (gameRunning) {
+    if (turn === player1) {
+      console.log(grid);
+      console.log("running p1 turn");
+      buildEventListeners(player1);
+      askMove();
+      makeAMove(player1);
+      if (checkIfWinner(player1)) {
+        console.log("Player 1 won!");
+        player1.numWins++;
+        gameRunning = false;
+      };
+    } else if (turn === player2) {
+      console.log(grid);
+      console.log("running p1 turn");
+      askMove();
+      makeAMove(player2);
+      if (checkIfWinner(player2)) {
+        console.log("Player 2 won!");
+        player2.numWins++;
+        gameRunning = false;
+      };
+    }
+      changeTurns();
+  };
 };
-
-//Build the event listeners
 var buildEventListeners = function(currentPlayer) {
-    column1.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(0, currentPlayer);
-      currentPlayer = turn;
-    });
-    column2.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(1, currentPlayer);
-      currentPlayer = turn;
-    });
-    column3.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(2, currentPlayer);
-      currentPlayer = turn;
-    });
-    column4.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(3, currentPlayer);
-      currentPlayer = turn;
-    });
-    column5.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(4, currentPlayer);
-      currentPlayer = turn;
-    });
-    column6.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(5, currentPlayer);
-      currentPlayer = turn;
-    });
-    column7.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(6, currentPlayer);
-      currentPlayer = turn;
-    });
+  column1.addEventListener("click", function() {
+    for (i = columnArray1.length - 1; i >= 0; i--) {
+      if (columnArray1[i].style.background !== player1.color && columnArray1[i].style.background !== player2.color) {
+        return columnArray1[i].style.background = currentPlayer.color;
+      }
+    }
+  });
 };
 
 //Ask player for move
-var askMove = function(clickedCol, currentPlayer) {
+var askMove = function(clickedCol) {
   //Figure out event listeners and return player's 'move'
-  move = clickedCol;
-  console.log("Move is", move);
-  return makeAMove(currentPlayer)
+  move = parseInt(prompt("Enter your move"));
+  console.log(move);
 };
 
 //Make a move
 var makeAMove = function(currentPlayer) {
   placementChecker(move, currentPlayer);
-  return declareWinner();
 };
 
 //Check where piece will land in column
@@ -145,7 +130,6 @@ var placementChecker = function(move, currentPlayer) {
   for (i = grid[move].length - 1; i >= 0; i--) {
     if (grid[move][i] === "X") {
       selectedTile = i;
-      columnArrayMain[move][i].style.background = currentPlayer.color;
       return grid[move][i] = currentPlayer.playerMark;
     }
   }
@@ -154,28 +138,32 @@ var placementChecker = function(move, currentPlayer) {
 
 //Check if anyone won
 var checkIfWinner = function(currentPlayer) {
-  //Run column check
-  if (colCheck(selectedTile)) {
-    return true;
-  };
-  //Run row check
-  if (rowCheck(selectedTile)) {
-    return true;
-  };
-  //Run diagonal check
-  if (diagCheck(selectedTile, turn.playerMark)) {
-    return true;
-  };
+//Run column check
+if (colCheck(selectedTile)) {
+  return true;
+};
+//Run row check
+if (rowCheck(selectedTile)) {
+  return true;
+};
+//Run diagonal check
+console.log(turn.playerMark);
+if (diagCheck(selectedTile, turn.playerMark)) {
+  return true;
+};
 };
 
 //Function for column check
 var colCheck = function(selectedTile) {
+  console.log("Move is:", move);
+  console.log("This is colCheck running and logging selectedTile:", selectedTile);
   for (i = -3; i <= 0; i++) {
   //Check if selectedTile is position 1
     if (grid[move][selectedTile] !== undefined &&
         grid[move][selectedTile + i] === grid[move][selectedTile + (i + 1)] &&
         grid[move][selectedTile + (i + 1)] === grid[move][selectedTile + (i + 2)] &&
         grid[move][selectedTile + (i + 2)] === grid[move][selectedTile + (i + 3)]) {
+          console.log("Option", (i + 4));
           return true;
     }
   }
@@ -185,11 +173,15 @@ var colCheck = function(selectedTile) {
 //Function for row check
 var rowCheck = function(selectedTile) {
   for (i = -3; i <= 0; i++) {
+  console.log("move is", move);
+  console.log("i is", i);
     if (((move + i) >= 0) && (move + (i + 3) <= 6)) {
+      console.log("since " + move + " - " + i + " is > 0, running it");
       if (grid[move][selectedTile] !== undefined &&
           grid[move + i][selectedTile] === grid[move + (i + 1)][selectedTile] &&
           grid[move + (i + 1)][selectedTile] === grid[move + (i + 2)][selectedTile] &&
           grid[move + (i + 2)][selectedTile] === grid[move + (i + 3)][selectedTile]) {
+            console.log("Option", (i + 4));
             return true;
       }
     }
@@ -200,12 +192,16 @@ var rowCheck = function(selectedTile) {
 //Function for diagonal check
 var diagCheck = function(selectedTile, currentPlayerX) {
   for (i = -3; i <= 0; i++) {
+  console.log("move is", move);
+  console.log("i is", i);
     if (((move + i) >= 0) && (move + (i + 3) <= 6)) {
+      console.log("since " + move + " - " + i + " is >= 0, running it");
       if (grid[move][selectedTile] !== undefined &&
           grid[move + i][selectedTile + i] === currentPlayerX &&
           grid[move + (i + 1)][selectedTile + (i + 1)] === currentPlayerX &&
           grid[move + (i + 2)][selectedTile + (i + 2)] === currentPlayerX &&
           grid[move + (i + 3)][selectedTile + (i + 3)] === currentPlayerX) {
+            console.log("Option", (i + 4));
             return true;
       } else if (grid[move][selectedTile] !== undefined &&
           grid[move + i][selectedTile - i] === currentPlayerX &&
@@ -218,19 +214,7 @@ var diagCheck = function(selectedTile, currentPlayerX) {
   }
   return false;
 };
-var declareWinner = function() {
-  if (checkIfWinner(player1) && turn === player1) {
-    console.log("Player 1 won!");
-    player1.numWins++;
-    return gameRunning = false;
-  } else if (checkIfWinner(player2) && turn === player2) {
-    console.log("Player 2 won!");
-    player2.numWins++;
-    return gameRunning = false;
-  } else {
-    changeTurns();
-  }
-}
+
 var changeTurns = function() {
     if (turn === player1) {
     turn = player2;
