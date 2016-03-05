@@ -56,6 +56,7 @@ var isThereAWinner = false;
 //Ask player's names
 window.onload = function() {
   turn = player1;
+  // askNames();
 };
 
 //Is the game currently being played?
@@ -68,13 +69,40 @@ var move;
 //Starts game
 var start = function() {
   gameRunning = true;
-  playGame();
+  clearBoard();
+  playButton.innerText = "Game in session";
+  playButton.setAttribute("id","play_button_B");
+  playButton.removeEventListener("click", start);
+  return playGame();
 };
+
+//Function to clear the gameboard
+var clearBoard = function() {
+  for (i = 0; i < columnArrayMain.length; i++) {
+    for (j = 0; j < columnArrayMain[i].length; j++) {
+      columnArrayMain[i][j].style.background = "#0ca7d3";
+    }
+  }
+  grid = [["X","X","X","X","X","X"],
+          ["X","X","X","X","X","X"],
+          ["X","X","X","X","X","X"],
+          ["X","X","X","X","X","X"],
+          ["X","X","X","X","X","X"],
+          ["X","X","X","X","X","X"],
+          ["X","X","X","X","X","X"]];
+}
+
+//Get play button to start game
+var playButton = document.querySelector("#play_button");
+playButton.addEventListener("click", start);
 
 //Asks the players their names
 var askNames = function() {
   player1.name = prompt("What's Player 1's name?");
+  document.querySelector("#player1_name").innerText = player1.name;
   player2.name = prompt("What's Player 2's name?");
+  document.querySelector("#player2_name").innerText = player2.name;
+
   //Checks if player2's name is different
   while (player2.name === player1.name) {
     alert("You can't have the same name! Choose again.");
@@ -87,43 +115,44 @@ var playGame = function() {
   buildEventListeners(turn);
 };
 
+//Needed to name function to allow event listener
+var col1Click = function(){
+    console.log("adding listener for player", turn);
+    return askMove(0, turn);
+}
+var col2Click = function(){
+    console.log("adding listener for player", turn);
+    return askMove(1, turn);
+}
+var col3Click = function(){
+    console.log("adding listener for player", turn);
+    return askMove(2, turn);
+}
+var col4Click = function(){
+    console.log("adding listener for player", turn);
+    return askMove(3, turn);
+}
+var col5Click = function(){
+    console.log("adding listener for player", turn);
+    return askMove(4, turn);
+}
+var col6Click = function(){
+    console.log("adding listener for player", turn);
+    return askMove(5, turn);
+}
+var col7Click = function(){
+    console.log("adding listener for player", turn);
+    return askMove(6, turn);
+}
 //Build the event listeners
 var buildEventListeners = function(currentPlayer) {
-    column1.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(0, currentPlayer);
-      currentPlayer = turn;
-    });
-    column2.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(1, currentPlayer);
-      currentPlayer = turn;
-    });
-    column3.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(2, currentPlayer);
-      currentPlayer = turn;
-    });
-    column4.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(3, currentPlayer);
-      currentPlayer = turn;
-    });
-    column5.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(4, currentPlayer);
-      currentPlayer = turn;
-    });
-    column6.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(5, currentPlayer);
-      currentPlayer = turn;
-    });
-    column7.addEventListener("click", function() {
-      console.log("adding listener for player", currentPlayer);
-      askMove(6, currentPlayer);
-      currentPlayer = turn;
-    });
+  column1.addEventListener("click", col1Click);
+  column2.addEventListener("click", col2Click);
+  column3.addEventListener("click", col3Click);
+  column4.addEventListener("click", col4Click);
+  column5.addEventListener("click", col5Click);
+  column6.addEventListener("click", col6Click);
+  column7.addEventListener("click", col7Click);
 };
 
 //Ask player for move
@@ -220,17 +249,31 @@ var diagCheck = function(selectedTile, currentPlayerX) {
 };
 var declareWinner = function() {
   if (checkIfWinner(player1) && turn === player1) {
+    loadModal(player1, player2);
     console.log("Player 1 won!");
     player1.numWins++;
+    endClick();
+    gameInfoChanges();
+    playButton.innerText = "Play again";
+    playButton.addEventListener("click", start);
+    playButton.setAttribute("id","play_button");
     return gameRunning = false;
   } else if (checkIfWinner(player2) && turn === player2) {
+    loadModal(player2, player1);
     console.log("Player 2 won!");
     player2.numWins++;
+    endClick();
+    gameInfoChanges();
+    playButton.innerText = "Play again";
+    playButton.addEventListener("click", start);
+    playButton.setAttribute("id","play_button");
     return gameRunning = false;
   } else {
     changeTurns();
   }
 }
+
+//Function to alternate turns
 var changeTurns = function() {
     if (turn === player1) {
     turn = player2;
@@ -238,3 +281,35 @@ var changeTurns = function() {
     turn = player1;
   }
 };
+
+
+//Function to end the event listeners on the gameboard
+var endClick = function() {
+  column1.removeEventListener("click", col1Click);
+  column2.removeEventListener("click", col2Click);
+  column3.removeEventListener("click", col3Click);
+  column4.removeEventListener("click", col4Click);
+  column5.removeEventListener("click", col5Click);
+  column6.removeEventListener("click", col6Click);
+  column7.removeEventListener("click", col7Click);
+}
+
+//Makes changes to the game info once game ends, i.e. score, buttons, etc.
+var gameInfoChanges = function() {
+  document.querySelector("#player1_wins").innerText = player1.numWins;
+  document.querySelector("#player2_wins").innerText = player2.numWins;
+}
+
+//Loads the modal on game end
+var loadModal = function(winningPlayer, losingPlayer) {
+  document.querySelector(".modal_overlay").style.display = "flex";
+  document.querySelector(".modal_box").style.display = "block";
+  document.querySelector("#modal_headline_span").innerText = winningPlayer.name;
+  document.querySelector("#modal_headline_span2").innerText = losingPlayer.name;
+}
+
+//Functionality for the modal's close button
+document.querySelector("#modal_close_button").addEventListener("click", function(){
+  document.querySelector(".modal_overlay").style.display = "none";
+  document.querySelector(".modal_box").style.display = "none";
+});
