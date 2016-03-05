@@ -52,6 +52,8 @@ var selectedTile;
 //Is there a winner for the current game?
 var isThereAWinner = false;
 
+//Did the player make a valid move?
+var validMoveMade = false;
 //onload functions
 //Ask player's names
 window.onload = function() {
@@ -165,8 +167,9 @@ var askMove = function(clickedCol, currentPlayer) {
 
 //Make a move
 var makeAMove = function(currentPlayer) {
-  placementChecker(move, currentPlayer);
+  while (placementChecker(move, currentPlayer) === true) {
   return declareWinner();
+  }
 };
 
 //Check where piece will land in column
@@ -175,10 +178,12 @@ var placementChecker = function(move, currentPlayer) {
     if (grid[move][i] === "X") {
       selectedTile = i;
       columnArrayMain[move][i].style.background = currentPlayer.color;
-      return grid[move][i] = currentPlayer.playerMark;
+      grid[move][i] = currentPlayer.playerMark;
+      return true;
     }
   }
-  console.log("Can't move here! Column's full!");
+  alert("Can't move here! Column's full!");
+  return false;
 };
 
 //Check if anyone won
@@ -268,10 +273,20 @@ var declareWinner = function() {
     playButton.addEventListener("click", start);
     playButton.setAttribute("id","play_button");
     return gameRunning = false;
-  } else {
+  }
+    //Checking for a tie
+    else if (isBoardFull() === true) {
+      loadTieModal();
+      endClick();
+      playButton.innerText = "Play again";
+      playButton.addEventListener("click", start);
+      playButton.setAttribute("id","play_button");
+      console.log("It's a tie!");
+      return gameRunning = false;
+    } else {
     changeTurns();
   }
-}
+};
 
 //Function to alternate turns
 var changeTurns = function() {
@@ -280,6 +295,7 @@ var changeTurns = function() {
   } else {
     turn = player1;
   }
+  validMoveMade = false;
 };
 
 
@@ -308,8 +324,29 @@ var loadModal = function(winningPlayer, losingPlayer) {
   document.querySelector("#modal_headline_span2").innerText = losingPlayer.name;
 }
 
+//Loads the modal on game end if game is tied
+var loadTieModal = function() {
+  document.querySelector(".modal_overlay").style.display = "flex";
+  document.querySelector(".modal_box").style.display = "block";
+  document.querySelector(".modal_headline").innerText = "It's a tie!";
+  document.querySelector(".modal_headline2").innerText = "Better luck next game.";
+}
+
 //Functionality for the modal's close button
 document.querySelector("#modal_close_button").addEventListener("click", function(){
   document.querySelector(".modal_overlay").style.display = "none";
   document.querySelector(".modal_box").style.display = "none";
 });
+
+//Function to check if grid is full
+var isBoardFull = function() {
+  for (i = 0; i < grid.length; i++) {
+    for (j = 0; j < grid[i].length; j++) {
+      if (grid[i][j] === "X") {
+        console.log("running it", i);
+        return false;
+      }
+    }
+  }
+  return true;
+}
