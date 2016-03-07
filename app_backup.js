@@ -52,26 +52,13 @@ var selectedTile;
 //Is there a winner for the current game?
 var isThereAWinner = false;
 
-//Who is the winner?
-var winner = player1;
-
 //Did the player make a valid move?
 var validMoveMade = false;
-
 //onload functions
 //Ask player's names
 window.onload = function() {
-  var gameTypeInt = parseInt(prompt("Would you like to play alone or with a friend? Enter 1 for single player and 2 for multiplayer."));
-  while (gameTypeInt !== 1 && gameTypeInt !== 2) {
-    gameTypeInt = parseInt(prompt("Invalid response. Please enter 1 or 2."));
-  };
-  if (gameTypeInt === 1) {
-    gameType = "Single Player";
-  } else if (gameTypeInt === 2) {
-    gameType = "Two Player";
-  }
   turn = player1;
-  askNames();
+  // askNames();
 };
 
 //Is the game currently being played?
@@ -115,31 +102,19 @@ playButton.addEventListener("click", start);
 var askNames = function() {
   player1.name = prompt("What's Player 1's name?");
   document.querySelector("#player1_name").innerText = player1.name;
+  player2.name = prompt("What's Player 2's name?");
+  document.querySelector("#player2_name").innerText = player2.name;
 
-  if (gameType === "Two Player") {
+  //Checks if player2's name is different
+  while (player2.name === player1.name) {
+    alert("You can't have the same name! Choose again.");
     player2.name = prompt("What's Player 2's name?");
-    document.querySelector("#player2_name").innerText = player2.name;
-
-    //Checks if player2's name is different
-    while (player2.name === player1.name) {
-      alert("You can't have the same name! Choose again.");
-      player2.name = prompt("What's Player 2's name?");
-      document.querySelector("#player2_name").innerText = player2.name;
-    }
-  }
-  //Apply computer's name
-  if (gameType === "Single Player") {
-    document.querySelector("#player2_name").innerText = compPlayer.name;
   }
 };
 
 //Function for gameplay
 var playGame = function() {
-  if (turn === compPlayer) {
-    runComputerMove();
-  } else {
   buildEventListeners(turn);
-  }
 };
 
 //Needed to name function to allow event listener
@@ -193,11 +168,7 @@ var askMove = function(clickedCol, currentPlayer) {
 //Make a move
 var makeAMove = function(currentPlayer) {
   while (placementChecker(move, currentPlayer) === true) {
-    if (gameType === "Two Player") {
-      return declareWinner();
-    } else if (gameType === "Single Player") {
-      return declareWinnerComp();
-    }
+  return declareWinner();
   }
 };
 
@@ -211,11 +182,7 @@ var placementChecker = function(move, currentPlayer) {
       return true;
     }
   }
-  if (gameType === "Two Player") {
-    alert("Can't move here! Column's full!");
-  } else if (gameType === "Single Player" && turn === player1) {
   alert("Can't move here! Column's full!");
-  }
   return false;
 };
 
@@ -321,43 +288,6 @@ var declareWinner = function() {
   }
 };
 
-//Declare Winner function for One Player Mode
-var declareWinnerComp = function() {
-  if (checkIfWinner(player1) && turn === player1) {
-    loadModal(player1, compPlayer);
-    console.log("Player 1 won!");
-    player1.numWins++;
-    endClick();
-    gameInfoChanges();
-    playButton.innerText = "Play again";
-    playButton.addEventListener("click", start);
-    playButton.setAttribute("id","play_button");
-    return gameRunning = false;
-  } else if (checkIfWinner(compPlayer) && turn === compPlayer) {
-    loadModal(compPlayer, player1);
-    console.log("Player 2 won!");
-    compPlayer.numWins++;
-    endClick();
-    gameInfoChanges();
-    playButton.innerText = "Play again";
-    playButton.addEventListener("click", start);
-    playButton.setAttribute("id","play_button");
-    return gameRunning = false;
-  }
-    //Checking for a tie
-    else if (isBoardFull() === true) {
-      loadTieModal();
-      endClick();
-      playButton.innerText = "Play again";
-      playButton.addEventListener("click", start);
-      playButton.setAttribute("id","play_button");
-      console.log("It's a tie!");
-      return gameRunning = false;
-    } else {
-    changeTurnsComp();
-  }
-};
-
 //Function to alternate turns
 var changeTurns = function() {
     if (turn === player1) {
@@ -368,18 +298,6 @@ var changeTurns = function() {
   validMoveMade = false;
 };
 
-//Function to alternate turns in one player mode
-var changeTurnsComp = function() {
-  if (turn === player1) {
-    turn = compPlayer;
-    endClick();
-    runComputerMove();
-  } else {
-    turn = player1;
-    buildEventListeners(turn);
-  }
-  validMoveMade = false;
-};
 
 //Function to end the event listeners on the gameboard
 var endClick = function() {
@@ -396,12 +314,6 @@ var endClick = function() {
 var gameInfoChanges = function() {
   document.querySelector("#player1_wins").innerText = player1.numWins;
   document.querySelector("#player2_wins").innerText = player2.numWins;
-}
-
-//Computer version: makes changes to the game info once game ends, i.e. score, buttons, etc.
-var gameInfoChanges = function() {
-  document.querySelector("#player1_wins").innerText = player1.numWins;
-  document.querySelector("#player2_wins").innerText = compPlayer.numWins;
 }
 
 //Loads the modal on game end
