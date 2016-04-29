@@ -1,4 +1,4 @@
-//Create game-bard (X is empty, R is red pieces, B is black pieces)
+//Create gameboard (X is empty, R is red pieces, B is black pieces)
 //Game will be played sideways in JS and adjusted when displayed/played
 var grid = [["X","X","X","X","X","X"],
             ["X","X","X","X","X","X"],
@@ -214,7 +214,10 @@ var placementChecker = function(move, currentPlayer) {
   if (gameType === "Two Player") {
     alert("Can't move here! Column's full!");
   } else if (gameType === "Single Player" && turn === player1) {
-  alert("Can't move here! Column's full!");
+    alert("Can't move here! Column's full!");
+  }
+  if (gameType === "Single Player" && turn === compPlayer) {
+    runComputerMove();
   }
   return false;
 };
@@ -328,7 +331,7 @@ var declareWinnerComp = function() {
     console.log("Player 1 won!");
     player1.numWins++;
     endClick();
-    gameInfoChanges();
+    gameInfoChangesComp();
     playButton.innerText = "Play again";
     playButton.addEventListener("click", start);
     playButton.setAttribute("id","play_button");
@@ -338,7 +341,7 @@ var declareWinnerComp = function() {
     console.log("Player 2 won!");
     compPlayer.numWins++;
     endClick();
-    gameInfoChanges();
+    gameInfoChangesComp();
     playButton.innerText = "Play again";
     playButton.addEventListener("click", start);
     playButton.setAttribute("id","play_button");
@@ -399,7 +402,7 @@ var gameInfoChanges = function() {
 }
 
 //Computer version: makes changes to the game info once game ends, i.e. score, buttons, etc.
-var gameInfoChanges = function() {
+var gameInfoChangesComp = function() {
   document.querySelector("#player1_wins").innerText = player1.numWins;
   document.querySelector("#player2_wins").innerText = compPlayer.numWins;
 }
