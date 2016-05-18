@@ -30,6 +30,9 @@ var columnArray7 = document.querySelectorAll(".game_column_7");
 //Create an array with all of the columns
 var columnArrayMain = [columnArray1, columnArray2, columnArray3, columnArray4, columnArray5, columnArray6, columnArray7];
 
+//Has game type been chosen?
+var typeSelected = false;
+
 //Create players
 var player1 = {
   name: "Player 1",
@@ -61,17 +64,7 @@ var validMoveMade = false;
 //onload functions
 //Ask player's names
 window.onload = function() {
-  var gameTypeInt = parseInt(prompt("Would you like to play alone or with a friend? Enter 1 for single player and 2 for multiplayer."));
-  while (gameTypeInt !== 1 && gameTypeInt !== 2) {
-    gameTypeInt = parseInt(prompt("Invalid response. Please enter 1 or 2."));
-  };
-  if (gameTypeInt === 1) {
-    gameType = "Single Player";
-  } else if (gameTypeInt === 2) {
-    gameType = "Two Player";
-  }
-  turn = player1;
-  askNames();
+
 };
 
 //Is the game currently being played?
@@ -83,6 +76,25 @@ var move;
 
 //Starts game
 var start = function() {
+  if (typeSelected === false) {
+    var gameTypeInt = prompt("Would you like to play alone or with a friend? Enter 1 for single player and 2 for multiplayer.");
+    console.log(gameTypeInt);
+    if (gameTypeInt == null) {
+      return;
+    }
+    gameTypeInt = parseInt(gameTypeInt);
+    while (gameTypeInt !== 1 && gameTypeInt !== 2) {
+      gameTypeInt = parseInt(prompt("Invalid response. Please enter 1 or 2."));
+    };
+    if (gameTypeInt === 1) {
+      gameType = "Single Player";
+    } else if (gameTypeInt === 2) {
+      gameType = "Two Player";
+    }
+    turn = player1;
+    askNames();
+  }
+
   gameRunning = true;
   clearBoard();
   playButton.innerText = "Game in session";
@@ -122,6 +134,9 @@ var askNames = function() {
 
     //Checks if player2's name is different
     while (player2.name === player1.name) {
+      if (player2.name == null) {
+        return;
+      }
       alert("You can't have the same name! Choose again.");
       player2.name = prompt("What's Player 2's name?");
       document.querySelector("#player2_name").innerText = player2.name;
@@ -131,6 +146,9 @@ var askNames = function() {
   if (gameType === "Single Player") {
     document.querySelector("#player2_name").innerText = compPlayer.name;
   }
+
+  typeSelected = true;
+
 };
 
 //Function for gameplay
